@@ -33,6 +33,33 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
 
+    this.showPoints();
+
+    this.vectorSource = new VectorSource({
+      features: [this.point1, this.point2]
+    });
+
+    let vectorLayer = new VectorLayer({
+      source: this.vectorSource
+    });
+
+    this.map = new Map({
+      target: 'map',
+      layers: [  new TileLayer({  source: new OSM()}), vectorLayer ],
+      view: new View({
+        center: fromLonLat([-36.1492374, 26.7800424]),
+        zoom: 3
+      })
+    }); 
+    setTimeout(() => {
+      if (this.map) {  this.map.setTarget("map"); }
+    }, 1000);
+
+    this.showPopup();
+  }
+
+  showPoints(){
+
     this.point1 = new Feature({
       geometry : new Point(fromLonLat([-75.1000822, 7.7160739])),
       name: 'Colombia',
@@ -60,33 +87,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
         imgSize: [50, 50]
       }))
     }));
+  }
 
-    this.vectorSource = new VectorSource({
-      features: [this.point1, this.point2]
-    })
-
-    let vectorLayer = new VectorLayer({
-      source: this.vectorSource
-    })
-
-    this.map = new Map({
-      target: 'map',
-      layers: [
-        new TileLayer({
-          source: new OSM()
-        }), vectorLayer
-      ],
-      view: new View({
-        center: fromLonLat([-36.1492374, 26.7800424]),
-        zoom: 3
-      })
-    });
-    setTimeout(() => {
-      if (this.map) {
-        this.map.setTarget("map");
-      }
-    }, 1000);
-
+  showPopup(){
     let container = document.getElementById('popup')!;
     let content_element = document.getElementById('popup-content')!;
     let closer = document.getElementById('popup-closer')!;
@@ -104,16 +107,16 @@ export class HomeComponent implements OnInit, AfterViewInit {
             return feature;
           });
         if (feature) {
-            var geometry = feature.getGeometry();
-            var coord = geometry.getCoordinates();
+          var geometry = feature.getGeometry();
+          var coord = geometry.getCoordinates();
 
-            var content = '<h2>' + feature.get('name') + '</h2>';
-            content += '<p> <strong>Información resumida</strong></p>';
-            content += '<p>' + feature.get('informacion') + '</>';
-            content_element.innerHTML = content;
-            overlay.setPosition(coord);
+          var content = '<h2>' + feature.get('name') + '</h2>';
+          content += '<p> <strong>Información resumida</strong></p>';
+          content += '<p>' + feature.get('informacion') + '</>';
+          content_element.innerHTML = content;
+          overlay.setPosition(coord);
 
-            console.info(feature.getProperties());
+          console.info(feature.getProperties());
         }
     });
 
